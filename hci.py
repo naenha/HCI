@@ -49,9 +49,9 @@ def extractNRL(frame, points):
 
 
 def isTriangle(points):
-    if points[0] and points[1] and points[2]:
-        if points[2][0] - points[1][0] > 0:
-            if points[0][1] < (points[1][1] + points[2][1]) // 2:
+    if points[0] and points[1] and points[2]: # 3점 다 찍힘
+        if (points[1][0] < points[0][0]) and (points[0][0]<points[2][0]): # x좌표가 RNL 순
+            if points[0][1] < min(points[1][1],points[2][1]): # y 좌표가 N이 작음
                 return True
     return False
 
@@ -72,20 +72,24 @@ def score_turtle(frame):
         bi = mit // nop
         cv2.putText(frame, "{0}".format((mit,nop,bi)), (10,25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1,
                     lineType=cv2.LINE_AA)
-        if bi <= 4:
+        if bi <= 3:
             scores.append(100)
             #cv2.line(frame, points[0], points[1], (255, 0, 0), 2)
             #cv2.line(frame, points[0], points[2], (255, 0, 0), 2)
-        elif bi <= 6:
+        elif bi <= 4:
             scores.append(80)
             #cv2.line(frame, points[0], points[1], (0, 255, 0), 2)
             #cv2.line(frame, points[0], points[2], (0, 255, 0), 2)
-        elif bi <= 9:
+        elif bi <= 5:
             scores.append(60)
             #cv2.line(frame, points[0], points[1], (0, 128, 127), 2)
             #cv2.line(frame, points[0], points[2], (0, 128, 127), 2)
-        else:
+        elif bi <=6:
             scores.append(40)
+            # cv2.line(frame, points[0], points[1], (0, 128, 127), 2)
+            # cv2.line(frame, points[0], points[2], (0, 128, 127), 2)
+        else:
+            scores.append(20)
             #cv2.line(frame, points[0], points[1], (0, 0, 255), 2)
             #cv2.line(frame, points[0], points[2], (0, 0, 255), 2)
         cnt += 1
