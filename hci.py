@@ -1,5 +1,12 @@
 import cv2
+import pymysql
+import datetime
 from pathlib import Path
+
+# connection 정보
+conn = pymysql.connect(host = 'localhost', user = 'root', password = 'mysql', db = 'hci', charset = 'utf8')
+curs = conn.cursor(pymysql.cursors.DictCursor)
+
 
 # 모델 정보
 BODY_PARTS = {"Neck": 1, "RShoulder": 2, "LShoulder": 5}
@@ -59,7 +66,7 @@ def isTriangle(points):
 def isTime():
     return True
 
-def score_turtle(frame):
+def score_turtle(frame,curs):
     global cnt
     points = []
     # NRL 추출
@@ -67,24 +74,24 @@ def score_turtle(frame):
 
     # points가 측정 가능한 삼각형을 이룸
     if isTriangle(points):
-        mit = abs(points[1][0] - points[2][0])
-        nop = abs(points[0][1] - (points[1][1] + points[2][1]) // 2)
-        bi = mit // nop
-        cv2.putText(frame, "{0}".format((mit,nop,bi)), (10,25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1,
+        x = abs(points[1][0] - points[2][0]) # 밑변
+        h = abs(points[0][1] - (points[1][1] + points[2][1]) // 2) # 높이
+        r = x // h # 비율
+        cv2.putText(frame, "{0}".format((x,h,r)), (10,25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1,
                     lineType=cv2.LINE_AA)
-        if bi <= 3:
+        if r <= 3:
             scores.append(100)
             #cv2.line(frame, points[0], points[1], (255, 0, 0), 2)
             #cv2.line(frame, points[0], points[2], (255, 0, 0), 2)
-        elif bi <= 4:
+        elif r <= 4:
             scores.append(80)
             #cv2.line(frame, points[0], points[1], (0, 255, 0), 2)
             #cv2.line(frame, points[0], points[2], (0, 255, 0), 2)
-        elif bi <= 5:
+        elif r <= 5:
             scores.append(60)
             #cv2.line(frame, points[0], points[1], (0, 128, 127), 2)
             #cv2.line(frame, points[0], points[2], (0, 128, 127), 2)
-        elif bi <=6:
+        elif r <=6:
             scores.append(40)
             # cv2.line(frame, points[0], points[1], (0, 128, 127), 2)
             # cv2.line(frame, points[0], points[2], (0, 128, 127), 2)
@@ -99,9 +106,10 @@ def score_turtle(frame):
     if cnt == N:
         global res
         res = sum(scores) // len(scores)
-        """
-        DB 저장
-        """
+        # DB
+        sql = """ insert into score(score, createdAt) values (%s, %s) """
+        curs.execute(sql, (res, datetime.datetime.now()))
+        conn.commit()
 
     pass
 
@@ -122,7 +130,7 @@ while cv2.waitKey(1) < 0:
     # pose 추출 시간 발생
     if isTime():
         #pose 추출
-        score_turtle(frame)
+        score_turtle(frame,curs)
 
     cv2.imshow("cam", frame)
     pass
