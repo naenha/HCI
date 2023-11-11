@@ -1,6 +1,6 @@
 import cv2
 import pymysql
-import datetime
+from datetime import datetime
 from pathlib import Path
 
 # connection 정보
@@ -21,12 +21,15 @@ inputWidth = 320;
 inputHeight = 240;
 inputScale = 1.0 / 255;
 
-# 전역변수
-cnt = 0  # 현재 추출 횟 수
-N = 10  # 전체 추출 횟 수
-scores = []  # 추출 점수
-res = 0
 
+#시간
+#9:10,10:10,11:10..에 촬영
+resv_time=[(9,10),(10,10),(11,10),(12,10),(13,10),(14,10),(15,10),(16,10),(17,10),(18,10)]
+visit = [0,0,0,0,0,0,0,0,0,0]
+ind = 0
+curr_hour, curr_min = 0,0
+prev_hour , prev_min =0,0
+res_hour , res_min = 0,0
 
 # 함수
 def extractNRL(frame, points):
@@ -64,52 +67,66 @@ def isTriangle(points):
 
 
 def isTime():
-    return True
+    global ind
+    curr_hour = datetime.today().hour
+    curr_min = datetime.today().minute
+
+    res_hour = resv_time[ind][0]
+    res_min = resv_time[ind][1]
+    global prev_hour,prev_min
+
+    if (prev_hour == res_hour) and (prev_min == res_min):
+        if (curr_hour!=res_hour) or (curr_min != res_min):
+            ind+=1
+    prev_hour, prev_min = curr_hour, curr_min
+
+    if (curr_hour == res_hour) and (curr_min == res_min):
+        if not visit[ind]:
+            visit[ind]=1
+            return True
+    return False
 
 def score_turtle(frame,curs):
-    global cnt
     points = []
     # NRL 추출
     extractNRL(frame, points)
 
     # points가 측정 가능한 삼각형을 이룸
     if isTriangle(points):
+        score=0
         x = abs(points[1][0] - points[2][0]) # 밑변
         h = abs(points[0][1] - (points[1][1] + points[2][1]) // 2) # 높이
         r = x // h # 비율
         cv2.putText(frame, "{0}".format((x,h,r)), (10,25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1,
                     lineType=cv2.LINE_AA)
         if r <= 3:
-            scores.append(100)
+            score=100
             #cv2.line(frame, points[0], points[1], (255, 0, 0), 2)
             #cv2.line(frame, points[0], points[2], (255, 0, 0), 2)
         elif r <= 4:
-            scores.append(80)
+            score=80
             #cv2.line(frame, points[0], points[1], (0, 255, 0), 2)
             #cv2.line(frame, points[0], points[2], (0, 255, 0), 2)
         elif r <= 5:
-            scores.append(60)
+            score=60
             #cv2.line(frame, points[0], points[1], (0, 128, 127), 2)
             #cv2.line(frame, points[0], points[2], (0, 128, 127), 2)
         elif r <=6:
-            scores.append(40)
+            score=40
             # cv2.line(frame, points[0], points[1], (0, 128, 127), 2)
             # cv2.line(frame, points[0], points[2], (0, 128, 127), 2)
         else:
-            scores.append(20)
+            score=20
             #cv2.line(frame, points[0], points[1], (0, 0, 255), 2)
             #cv2.line(frame, points[0], points[2], (0, 0, 255), 2)
-        cnt += 1
-        pass
 
-    # N번 추출함
-    if cnt == N:
-        global res
-        res = sum(scores) // len(scores)
         # DB
         sql = """ insert into score(score, createdAt) values (%s, %s) """
-        curs.execute(sql, (res, datetime.datetime.now()))
+        curs.execute(sql, (score, datetime.now()))
         conn.commit()
+
+        pass
+
 
     pass
 
@@ -131,6 +148,7 @@ while cv2.waitKey(1) < 0:
     if isTime():
         #pose 추출
         score_turtle(frame,curs)
+        pass
 
     cv2.imshow("cam", frame)
     pass
@@ -139,5 +157,3 @@ while cv2.waitKey(1) < 0:
 capture.release()
 cv2.destroyAllWindows()
 
-#print(scores)
-print(res)
