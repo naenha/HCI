@@ -1,6 +1,6 @@
 import cv2
 import pymysql
-import datetime
+from datetime import datetime
 from pathlib import Path
 
 # connection 정보
@@ -13,6 +13,7 @@ BODY_PARTS = {"Neck": 1, "RShoulder": 2, "LShoulder": 5}
 BASE_DIR = Path(__file__).resolve().parent
 protoFile = str(BASE_DIR) + "/source/pose_deploy_linevec_faster_4_stages.prototxt"
 weightsFile = str(BASE_DIR) + "/source/pose_iter_160000.caffemodel"
+
 net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
 
 # 카메라 정보
@@ -23,7 +24,7 @@ inputScale = 1.0 / 255;
 
 # 전역변수
 cnt = 0  # 현재 추출 횟 수
-N = 10  # 전체 추출 횟 수
+N = 3  # 전체 추출 횟 수
 scores = []  # 추출 점수
 res = 0
 
@@ -108,7 +109,7 @@ def score_turtle(frame,curs):
         res = sum(scores) // len(scores)
         # DB
         sql = """ insert into score(score, createdAt) values (%s, %s) """
-        curs.execute(sql, (res, datetime.datetime.now()))
+        curs.execute(sql, (res, datetime.now().date()))
         conn.commit()
 
     pass
