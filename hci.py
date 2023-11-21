@@ -13,6 +13,7 @@ BODY_PARTS = {"Neck": 1, "RShoulder": 2, "LShoulder": 5}
 BASE_DIR = Path(__file__).resolve().parent
 protoFile = str(BASE_DIR) + "/source/pose_deploy_linevec_faster_4_stages.prototxt"
 weightsFile = str(BASE_DIR) + "/source/pose_iter_160000.caffemodel"
+
 net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
 
 # 카메라 정보
@@ -20,6 +21,7 @@ capture = cv2.VideoCapture(0)
 inputWidth = 320;
 inputHeight = 240;
 inputScale = 1.0 / 255;
+
 
 
 #시간
@@ -123,6 +125,7 @@ def score_turtle(frame,curs):
         # DB
         sql = """ insert into score(score, createdAt) values (%s, %s) """
         curs.execute(sql, (score, datetime.now()))
+
         conn.commit()
 
         pass
