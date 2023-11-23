@@ -13,7 +13,6 @@ BODY_PARTS = {"Neck": 1, "RShoulder": 2, "LShoulder": 5}
 BASE_DIR = Path(__file__).resolve().parent
 protoFile = str(BASE_DIR) + "/source/pose_deploy_linevec_faster_4_stages.prototxt"
 weightsFile = str(BASE_DIR) + "/source/pose_iter_160000.caffemodel"
-
 net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
 
 # 카메라 정보
@@ -21,7 +20,6 @@ capture = cv2.VideoCapture(0)
 inputWidth = 320;
 inputHeight = 240;
 inputScale = 1.0 / 255;
-
 
 
 #시간
@@ -92,68 +90,58 @@ def score_turtle(frame,curs):
     points = []
     # NRL 추출
     extractNRL(frame, points)
-
+    ret = frame
     # points가 측정 가능한 삼각형을 이룸
     if isTriangle(points):
         score=0
         x = abs(points[1][0] - points[2][0]) # 밑변
         h = abs(points[0][1] - (points[1][1] + points[2][1]) // 2) # 높이
         r = x // h # 비율
-        cv2.putText(frame, "{0}".format((x,h,r)), (10,25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1,
-                    lineType=cv2.LINE_AA)
         if r <= 3:
-            score=100
-            #cv2.line(frame, points[0], points[1], (255, 0, 0), 2)
-            #cv2.line(frame, points[0], points[2], (255, 0, 0), 2)
+            cv2.line(frame, points[0], points[1], (255, 0, 0), 2)
+            cv2.line(frame, points[0], points[2], (255, 0, 0), 2)
+            score = 100
         elif r <= 4:
-            score=80
-            #cv2.line(frame, points[0], points[1], (0, 255, 0), 2)
-            #cv2.line(frame, points[0], points[2], (0, 255, 0), 2)
+            cv2.line(frame, points[0], points[1], (0, 255, 0), 2)
+            cv2.line(frame, points[0], points[2], (0, 255, 0), 2)
+            score = 80
         elif r <= 5:
-            score=60
-            #cv2.line(frame, points[0], points[1], (0, 128, 127), 2)
-            #cv2.line(frame, points[0], points[2], (0, 128, 127), 2)
-        elif r <=6:
-            score=40
-            # cv2.line(frame, points[0], points[1], (0, 128, 127), 2)
-            # cv2.line(frame, points[0], points[2], (0, 128, 127), 2)
+            cv2.line(frame, points[0], points[1], (0, 255, 255), 2)
+            cv2.line(frame, points[0], points[2], (0, 2555, 255), 2)
+            score = 60
+        elif r <= 6:
+            cv2.line(frame, points[0], points[1], (0, 165, 255), 2)
+            cv2.line(frame, points[0], points[2], (0, 165, 255), 2)
+            score = 40
         else:
-            score=20
-            #cv2.line(frame, points[0], points[1], (0, 0, 255), 2)
-            #cv2.line(frame, points[0], points[2], (0, 0, 255), 2)
+            cv2.line(frame, points[0], points[1], (0, 0, 255), 2)
+            cv2.line(frame, points[0], points[2], (0, 0, 255), 2)
+            ret = cv2.applyColorMap(frame, cv2.COLORMAP_HOT)
+            score = 20
 
-        # DB
-        sql = """ insert into score(score, createdAt) values (%s, %s) """
-        curs.execute(sql, (score, datetime.now()))
-
-        conn.commit()
+        if isTime():
+            # DB
+            sql = """ insert into score(score, createdAt) values (%s, %s) """
+            curs.execute(sql, (score, datetime.now()))
+            conn.commit()
+            pass
 
         pass
 
-
-    pass
+    return ret
 
 
 # 카메라 재생 , 아무 키나 누르면 끝난다.
 while cv2.waitKey(1) < 0:
 
     hasFrame, frame = capture.read()
-
     if not hasFrame:
         cv2.waitKey()
         break
 
-    """
-    eyetracking 재생
-    """
+    res = score_turtle(frame, curs) #pose 점수 계산 함수 호출
 
-    # pose 추출 시간 발생
-    if isTime():
-        #pose 추출
-        score_turtle(frame,curs)
-        pass
-
-    cv2.imshow("cam", frame)
+    cv2.imshow("cam", res)
     pass
 
 # 카메라 종료
