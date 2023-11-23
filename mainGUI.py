@@ -14,7 +14,7 @@ class CustomWidget(QWidget):
         self.file_paths = ['hci.py', 'calendar.py']
 
         # 박스를 클릭할 때 실행할 함수 연결
-        self.box_click_handlers = [self.open_eye, self.posture, self.open_result]
+        self.box_click_handlers = [self.open_eye, self.open_posture, self.open_result]
 
         self.init_ui()
 
