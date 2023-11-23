@@ -11,10 +11,10 @@ class CustomWidget(QWidget):
 
         # 박스의 색상 및 파일 매핑
         self.box_colors = [(255, 255, 0), (255, 182, 193), (173, 216, 230)]
-        self.file_paths = ['hci.py', 'tryCalendar.py']
+        self.file_paths = ['hci.py', 'calendar.py']
 
         # 박스를 클릭할 때 실행할 함수 연결
-        self.box_click_handlers = [self.open_yellow, self.open_strawberry, self.open_butterfly]
+        self.box_click_handlers = [self.open_eye, self.posture, self.open_result]
 
         self.init_ui()
 
@@ -46,14 +46,14 @@ class CustomWidget(QWidget):
         # 박스를 클릭했을 때 실행할 함수 호출
         self.box_click_handlers[idx]()
 
-    def open_yellow(self):
+    def open_eye(self):
         print("a")
 
-    def open_strawberry(self):
+    def open_posture(self):
         print("Opening file:", self.file_paths[0])
         subprocess.Popen(['python', self.file_paths[0]])
 
-    def open_butterfly(self):
+    def open_result(self):
         print("Opening file:", self.file_paths[1])
         subprocess.Popen(['python', self.file_paths[1]])
 

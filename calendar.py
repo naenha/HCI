@@ -4,7 +4,6 @@ from PyQt5.QtGui import QPainter, QColor, QFont
 from PyQt5.QtWidgets import QCalendarWidget, QApplication
 import pymysql
 
-
 class CalendarWidget(QCalendarWidget):
 
     def __init__(self, parent=None):
@@ -25,7 +24,6 @@ class CalendarWidget(QCalendarWidget):
         painter.setRenderHint(QPainter.Antialiasing, True)
 
         painter.save()
-        painter.drawRect(rect)
 
         # Set different colors for weekends and weekdays
         if date.dayOfWeek() == Qt.Saturday or date.dayOfWeek() == Qt.Sunday:
@@ -38,33 +36,41 @@ class CalendarWidget(QCalendarWidget):
         painter.setFont(QFont('Decorative', font_size))
 
         # Fetch the score from the database for the current date
-        current_date = date.toString("yyyy-MM-dd")
+        current_date = date.toPyDate().strftime('%Y-%m-%d')
         self.cursor.execute(f"SELECT score FROM score WHERE createdAt = '{current_date}'")
         result = self.cursor.fetchone()
 
+        # Determine the cell color
+        if result is not None:
+            cell_color = QColor(173, 216, 230)  # Light blue
+        else:
+            cell_color = QColor(192, 192, 192)  # Light gray
+
+        # Fill the cell with the determined color
+        painter.fillRect(rect, cell_color)
+
+        # Draw a black border around the cell for today's date
+        if date == QDate.currentDate():
+            painter.setPen(QColor(0, 0, 0))  # Black for the border
+            painter.drawRect(rect.adjusted(0, 0, -1, -1))  # Adjusted to avoid overlapping with other cells
+
+        # Draw the date number with proportional offset and margin
+        margin = 5  # Adjust the margin value as needed
+        date_rect = QRectF(rect.left(), rect.top() + margin, rect.width(), rect.height() - 2 * margin)
+        painter.setPen(QColor(0, 0, 0))  # Black for the date number
+        painter.drawText(date_rect, Qt.AlignCenter, str(date.day()))
+
+        # Draw the score below the date number with proportional offset
         if result is not None:
             score = result[0]
-            # Draw the score below the date number with proportional offset
             text_rect = QRectF(rect.left(), rect.top() + 3 * font_size, rect.width(), rect.height() - 3 * font_size)
             painter.setPen(QColor(0, 0, 255))  # Blue for the score
             painter.drawText(text_rect, Qt.AlignCenter, f'{score}점')
-        else:
-            # Draw "None" below the date number with proportional offset
-            text_rect = QRectF(rect.left(), rect.top() + 3 * font_size, rect.width(), rect.height() - 3 * font_size)
-            painter.setPen(QColor(0, 0, 255))  # Blue for "None"
-            painter.drawText(text_rect, Qt.AlignCenter, 'None')
 
         painter.restore()
 
-
-
-try:
-
-    if __name__ == '__main__':
-        app = QApplication(sys.argv)
-        w = CalendarWidget()
-        w.show()
-        sys.exit(app.exec_())
-
-except Exception as e:
-    print(f"An error occurred: {e}")
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    w = CalendarWidget()
+    w.show()
+    sys.exit(app.exec_())
