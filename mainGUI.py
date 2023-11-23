@@ -20,7 +20,7 @@ class CustomWidget(QWidget):
 
     def init_ui(self):
         self.setGeometry(100, 100, 400, 300)
-        self.setWindowTitle('Colored Boxes')
+        self.setWindowTitle('Main')
 
         # 박스를 표시할 QLabel들을 만듭니다.
         self.labels = [QLabel(self) for _ in range(3)]

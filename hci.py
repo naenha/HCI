@@ -116,7 +116,7 @@ def score_turtle(frame,curs):
         else:
             cv2.line(frame, points[0], points[1], (0, 0, 255), 2)
             cv2.line(frame, points[0], points[2], (0, 0, 255), 2)
-            ret = cv2.applyColorMap(frame, cv2.COLORMAP_HOT)
+            res = cv2.applyColorMap(frame, cv2.COLORMAP_HOT)
             score = 20
 
         if isTime():
@@ -128,7 +128,7 @@ def score_turtle(frame,curs):
 
         pass
 
-    return ret
+    return res
 
 
 # 카메라 재생 , 아무 키나 누르면 끝난다.
@@ -141,7 +141,7 @@ while cv2.waitKey(1) < 0:
 
     res = score_turtle(frame, curs) #pose 점수 계산 함수 호출
 
-    cv2.imshow("cam", res)
+    cv2.imshow("posture", res)
     pass
 
 # 카메라 종료
