@@ -2,6 +2,7 @@ import cv2
 import pymysql
 from datetime import datetime
 from pathlib import Path
+from win10toast import ToastNotifier
 
 # connection 정보
 conn = pymysql.connect(host = 'localhost', user = 'root', password = 'mysql', db = 'hci', charset = 'utf8')
@@ -90,7 +91,7 @@ def score_turtle(frame,curs):
     points = []
     # NRL 추출
     extractNRL(frame, points)
-    ret = frame
+    res = frame
     # points가 측정 가능한 삼각형을 이룸
     if isTriangle(points):
         score=0
@@ -117,6 +118,14 @@ def score_turtle(frame,curs):
             cv2.line(frame, points[0], points[1], (0, 0, 255), 2)
             cv2.line(frame, points[0], points[2], (0, 0, 255), 2)
             res = cv2.applyColorMap(frame, cv2.COLORMAP_HOT)
+            toaster = ToastNotifier()
+
+            # 알람 메시지 설정
+            title = "안 좋은 자세 알람"
+            message = "자세가 현재 굉장히 안 좋아요! 자세를 바로 세우세요!"
+
+            # 알람 띄우기
+            toaster.show_toast(title, message, duration=10)
             score = 20
 
         if isTime():
