@@ -1,6 +1,6 @@
 import cv2
 from pathlib import Path
-
+import pymysql
 
 # 모델 정보
 BODY_PARTS = {"Neck": 1, "RShoulder": 2, "LShoulder": 5}
@@ -8,6 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent
 protoFile = str(BASE_DIR) + "/source/pose_deploy_linevec_faster_4_stages.prototxt"
 weightsFile = str(BASE_DIR) + "/source/pose_iter_160000.caffemodel"
 net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
+
+conn = pymysql.connect(host = 'localhost', user = 'root', password = 'mysql', db = 'hci', charset = 'utf8')
+curs = conn.cursor(pymysql.cursors.DictCursor)
 
 # 카메라 정보
 win_name ='cam'
@@ -92,17 +95,24 @@ def cap_std(frame):
 
         cv2.setMouseCallback(win_name, onMouse, param=[r])
 
-        pass
-
-    pass
+        if ord_std is not None and ext_std is not None:
+            capture.release()
+            cv2.destroyAllWindows()
 
 
 # 카메라 재생 , 아무 키나 누르면 끝난다.
+cv2.namedWindow(win_name, 1)
 while cv2.waitKey(1) < 0:
 
     hasFrame, frame = capture.read()
     if not hasFrame:
         cv2.waitKey()
+        break
+
+    if ord_std is not None and ext_std is not None:
+        sql = """ insert into reference(good, bad) values (%s, %s) """
+        curs.execute(sql, (ord_std, ext_std))
+        conn.commit()
         break
 
     cap_std(frame) #pose 점수 계산 함수 호출

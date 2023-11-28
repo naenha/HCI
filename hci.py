@@ -113,11 +113,21 @@ def score_turtle(frame,curs):
         elif r <= 6:
             cv2.line(frame, points[0], points[1], (0, 165, 255), 2)
             cv2.line(frame, points[0], points[2], (0, 165, 255), 2)
+            toaster = ToastNotifier()
+
+            # 알람 메시지 설정
+            title = "안 좋은 자세 알람"
+            message = "자세가 현재 굉장히 안 좋아요! 자세를 바로 세우세요!"
+
+            # 알람 띄우기
+            toaster.show_toast(title, message, duration=10)
+            score = 20
+
             score = 40
         else:
             cv2.line(frame, points[0], points[1], (0, 0, 255), 2)
             cv2.line(frame, points[0], points[2], (0, 0, 255), 2)
-            res = cv2.applyColorMap(frame, cv2.COLORMAP_HOT)
+            #res = cv2.applyColorMap(frame, cv2.COLORMAP_HOT)
             toaster = ToastNotifier()
 
             # 알람 메시지 설정
