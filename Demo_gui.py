@@ -5,6 +5,8 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt
 import subprocess
 
+# 시연용 GUI
+
 
 class CustomWidget(QWidget):
     def __init__(self):
@@ -28,7 +30,7 @@ class CustomWidget(QWidget):
 
     def init_ui(self):
         self.setGeometry(100, 100, 400, 300)
-        self.setWindowTitle('Main ')
+        self.setWindowTitle('Main')
 
         # 박스를 표시할 QLabel들을 만듭니다.
         self.labels = [QLabel(self) for _ in range(2)]
@@ -55,7 +57,7 @@ class CustomWidget(QWidget):
         self.box_click_handlers[idx]()
 
     def open_eye(self):
-        print("a")
+        subprocess.Popen(['python', self.file_paths[0]])
 
     def open_posture(self):
         # 결과 창이 이미 열려 있으면 숨기기/보이기 토글
