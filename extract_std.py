@@ -77,10 +77,10 @@ def cap_std(frame):
     ret = frame
 
     if cnt % 2 == 0:
-        cv2.putText(frame, "straight", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 1,
+        cv2.putText(frame, "After straightening your waist and neck, please click on the screen.", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 1,
                     lineType=cv2.LINE_AA)
     else:
-        cv2.putText(frame, "turtle", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 1,
+        cv2.putText(frame, "After making a bad posture, please click on the screen.", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 1,
                     lineType=cv2.LINE_AA)
     # points가 측정 가능한 삼각형을 이룸
     if isTriangle(points):

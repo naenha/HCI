@@ -38,7 +38,16 @@ class CalendarWidget(QCalendarWidget):
         # Fetch the score from the database for the current date
         current_date = date.toPyDate().strftime('%Y-%m-%d')
         self.cursor.execute(f"SELECT score FROM score WHERE createdAt = '{current_date}'")
-        result = self.cursor.fetchone()
+        results = self.cursor.fetchall()
+
+        if results:
+            total_score = sum(result[0] for result in results)
+            average_score = total_score / len(results)
+            rounded_average_score = round(average_score, 1)
+            result = (rounded_average_score,)
+        else:
+            result = None
+
 
         # Determine the cell color
         if result is not None:
