@@ -77,18 +77,23 @@ def cap_std(frame):
     ret = frame
 
     if cnt % 2 == 0:
-        cv2.putText(frame, "After straightening your waist and neck, please click on the screen.", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 1,
-                    lineType=cv2.LINE_AA)
+        text1 = "Maintain a proper posture for a while,"
+        text2 = "then please click on the screen."
+        cv2.putText(frame, text1, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1, lineType=cv2.LINE_AA)
+        cv2.putText(frame, text2, (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1, lineType=cv2.LINE_AA)
     else:
-        cv2.putText(frame, "After making a bad posture, please click on the screen.", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 1,
-                    lineType=cv2.LINE_AA)
+        text1 = "After making a bad posture,"
+        text2 = "please click on the screen."
+        cv2.putText(frame, text1, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1, lineType=cv2.LINE_AA)
+        cv2.putText(frame, text2, (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1, lineType=cv2.LINE_AA)
+
     # points가 측정 가능한 삼각형을 이룸
     if isTriangle(points):
 
         x = abs(points[1][0] - points[2][0]) # 밑변
         h = abs(points[0][1] - (points[1][1] + points[2][1]) // 2) # 높이
         r = x // h # 비율
-        cv2.putText(frame, "ratio:{0}".format(r), (250, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 1,
+        cv2.putText(frame, "ratio:{0}".format(r), (250, 470), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 1,
                     lineType=cv2.LINE_AA)
         cv2.line(frame, points[0], points[1], (255, 0, 0), 2)
         cv2.line(frame, points[0], points[2], (255, 0, 0), 2)
