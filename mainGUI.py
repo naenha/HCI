@@ -1,13 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
-from PyQt5.QtGui import QPainter, QColor
-from PyQt5.QtCore import Qt, QRect
-import subprocess
-
-
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QColor
+from PyQt5.QtCore import Qt
 import subprocess
 
 
