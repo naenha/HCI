@@ -1,13 +1,11 @@
 import sys
 import cv2
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QMessageBox
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt
 import subprocess
 
 # 시연용 GUI
-
-
 class CustomWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -20,8 +18,7 @@ class CustomWidget(QWidget):
         self.file_paths = ['eye.py']
 
         # 박스를 클릭할 때 실행할 함수 연결
-        self.box_click_handlers = [self.open_eye,self.open_posture]
-
+        self.box_click_handlers = [self.open_eye, self.open_posture]
 
         # 결과 창을 저장할 변수 추가
         self.result_widget = None
@@ -50,11 +47,26 @@ class CustomWidget(QWidget):
         for label in self.labels:
             layout.addWidget(label)
 
+        # Add information button
+        info_button = QPushButton('프로그램 사용법', self)
+        info_button.setToolTip('Click for information')
+        info_button.clicked.connect(self.show_information)
+        layout.addWidget(info_button)
+
         self.show()
 
     def on_box_click(self, idx):
         # 박스를 클릭했을 때 실행할 함수 호출
         self.box_click_handlers[idx]()
+
+    def show_information(self):
+        # Show information in a QMessageBox
+        info_message = ("눈 버튼을 누르면 피곤할 때 미로가 실행되며 눈 운동을 할 수 있습니다.\n\n"
+                        "자세를 기록하려면 처음 혹은 모니터 위치가 바뀔 때 좋은 자세와 안 좋은 자세 사진을 찍어주세요.\n\n"
+                        "좋은 자세, 안 좋은 자세 사진을 기준으로 현 자세의 점수가 매겨집니다.\n\n "
+                        "달력을 누르면 그간의 점수를 확인하실 수 있습니다.\n\n "
+                        "그간의 내 자세를 돌아보고 앞으로의 자세를 개선해보세요!")
+        QMessageBox.information(self, 'Information', info_message)
 
     def open_eye(self):
         subprocess.Popen(['python', self.file_paths[0]])
@@ -71,8 +83,6 @@ class CustomWidget(QWidget):
             print("Opening posture result window.")
             self.result_widget = CustomWidgetResult()
             self.result_widget.show()
-
-
 
 class CustomWidgetResult(QWidget):
     capture = None
@@ -123,7 +133,6 @@ class CustomWidgetResult(QWidget):
     def open_result(self):
         # print("Opening file:", self.file_paths[1])
         subprocess.Popen(['python', self.file_paths[2]])
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
